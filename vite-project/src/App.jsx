@@ -149,7 +149,6 @@ function App() {
     axios
       .request(options)
       .then(function (response) {
-        console.log(response.data.data);
         setfilteredData(response.data.data);
       })
       .catch(function (error) {
@@ -170,6 +169,7 @@ function App() {
 
   const handleSearch = (e) => {
     setsearchQuery(e.target.value);
+    setcurrentPage(0);
   };
 
   const handleDataLimit = (e) => {
