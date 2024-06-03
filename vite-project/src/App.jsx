@@ -4,6 +4,7 @@ import CustomTable from "./components/CustomTable";
 import SearchBox from "./components/SearchBox";
 import "./styles/main.scss";
 import axios from "axios";
+import useDebounce from "./Functions/useDebounce";
 
 function App() {
   const headers = [
@@ -24,7 +25,6 @@ function App() {
   const [dataLimit, setdataLimit] = useState(5);
 
   const [data, setdata] = useState([]);
-  console.log();
 
   const staticData = {
     data: [
@@ -122,57 +122,54 @@ function App() {
   // search box
   const [searchQuery, setsearchQuery] = useState("");
   const [filteredData, setfilteredData] = useState(staticData.data);
-  console.log(filteredData);
 
   // search data limit error
   const [dataLimitError, setDataLimitError] = useState("");
+  const [isFetchingData, setisFetchingData] = useState(false);
+  const [currentPage, setcurrentPage] = useState(0);
 
-  // fetch data
-  useEffect(() => {
+  const fetchListingData = (dataLimit, currentPage) => {
+    setisFetchingData(true);
     var options = {
       method: "GET",
       url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
-      params: { countryIds: "IN", namePrefix: "del", limit: "5" },
+      params: {
+        countryIds: "IN",
+        namePrefix: "del",
+        limit: dataLimit,
+        offset: currentPage,
+        namePrefix: searchQuery !== "" ? searchQuery : "",
+      },
       headers: {
         "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
-        "x-rapidapi-key": import.meta.env.VITE_API_KEY, // get key from https://rapidapi.com/wirefreethought/api/geodb-cities/
+        "x-rapidapi-key": import.meta.env.VITE_API_KEY,
       },
     };
 
-    // axios.get("https://countryflagsapi.com/png/in");
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data.data);
+        setfilteredData(response.data.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      })
+      .finally(() => setisFetchingData(false));
+  };
 
-    // axios
-    //   .request(options)
-    //   .then(function (response) {
-    //     console.log(response.data);
-    //   })
-    //   .catch(function (error) {
-    //     console.error(error);
-    //   });
-  }, []);
+  useDebounce(
+    () => {
+      if (dataLimit > 0 && !isNaN(dataLimit) && dataLimit < 11) {
+        fetchListingData(dataLimit, currentPage);
+      }
+    },
+    [dataLimit, currentPage, searchQuery],
+    800
+  );
 
   const handleSearch = (e) => {
     setsearchQuery(e.target.value);
-  };
-
-  useEffect(() => {
-    if (searchQuery !== "") {
-      searchPlaces(searchQuery, setfilteredData, staticData.data);
-    } else {
-      setfilteredData(staticData.data);
-    }
-  }, [searchQuery]);
-
-  // search places
-  const searchPlaces = (key, setstate, filterArray) => {
-    setstate(() =>
-      filterArray.filter(
-        (teacher) =>
-          Object.values(teacher).filter((teacherItem) =>
-            teacherItem.toString().toLowerCase().includes(key)
-          ).length > 0
-      )
-    );
   };
 
   const handleDataLimit = (e) => {
@@ -181,6 +178,16 @@ function App() {
       setDataLimitError("Please enter limit less than 10");
     } else {
       setDataLimitError("");
+    }
+  };
+
+  const handlePageChange = (val) => {
+    if (val == "inc") {
+      setcurrentPage((prev) => prev + 1);
+      return;
+    } else if (currentPage > 1) {
+      setcurrentPage(0);
+      return;
     }
   };
 
@@ -194,6 +201,9 @@ function App() {
         setdataLimit={handleDataLimit}
         searchQuery={searchQuery}
         dataLimitError={dataLimitError}
+        isFetchingData={isFetchingData}
+        currentPage={currentPage}
+        handlePageChange={handlePageChange}
       />
     </div>
   );

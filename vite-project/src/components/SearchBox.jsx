@@ -5,14 +5,11 @@ const SearchBox = (props) => {
   const { onChange, value } = props;
   useEffect(() => {
     window.addEventListener("keydown", function (e) {
-      console.log(e, e.ctrlKey && e.key == "/");
-      if (e.keyCode === 114 || (e.ctrlKey && e.key === "/")) {
+      if (e.ctrlKey && e.key === "/") {
         if (document.getElementById("searchInput") !== document.activeElement) {
           e.preventDefault();
-          console.log("Search is not in focus");
           document.getElementById("searchInput").focus();
         } else {
-          console.log("Default action of CtrlF");
           return true;
         }
       }

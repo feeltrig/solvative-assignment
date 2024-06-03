@@ -2,21 +2,19 @@ import React from "react";
 import "../styles/paginationController.scss";
 
 const PaginationController = (props) => {
-  const { dataLimit, setdataLimit, dataLimitError } = props;
-  console.log(dataLimitError);
+  const {
+    dataLimit,
+    setdataLimit,
+    dataLimitError,
+    currentPage,
+    handlePageChange,
+  } = props;
   return (
     <div className="paginationFooter">
       <div className="pagination">
-        <div href="#">&laquo;</div>
-        <div>
-          <select name="cars" id="cars">
-            <option value="volvo">Volvo</option>
-            <option value="saab">Saab</option>
-            <option value="opel">Opel</option>
-            <option value="audi">Audi</option>
-          </select>
-        </div>
-        <div href="#">&raquo;</div>
+        <div onClick={() => handlePageChange("dec")}>&laquo;</div>
+        <div>{currentPage + 1}</div>
+        <div onClick={() => handlePageChange("inc")}>&raquo;</div>
       </div>
 
       <div className="dataLimit">
