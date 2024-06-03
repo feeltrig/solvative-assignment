@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import "../styles/searchBox.scss";
 
-const SearchBox = () => {
+const SearchBox = (props) => {
+  const { onChange, value } = props;
   useEffect(() => {
     window.addEventListener("keydown", function (e) {
       console.log(e, e.ctrlKey && e.key == "/");
@@ -24,6 +25,8 @@ const SearchBox = () => {
         id="searchInput"
         className="searchBox"
         placeholder="Search places..."
+        value={value}
+        onChange={onChange}
       />
       <div className="keyboard-shortcut">Ctrl + /</div>
     </div>
